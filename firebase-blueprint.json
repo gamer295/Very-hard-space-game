@@ -1,0 +1,39 @@
+{
+  "entities": {
+    "Score": {
+      "title": "Leaderboard Score",
+      "description": "A high score entry on the global leaderboard.",
+      "type": "object",
+      "properties": {
+        "playerName": {
+          "type": "string",
+          "description": "The name of the player."
+        },
+        "score": {
+          "type": "integer",
+          "description": "The total score achieved."
+        },
+        "level": {
+          "type": "integer",
+          "description": "The highest level reached."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the score was recorded."
+        },
+        "userId": {
+          "type": "string",
+          "description": "The UID of the player who achieved this score."
+        }
+      },
+      "required": ["playerName", "score", "level", "createdAt", "userId"]
+    }
+  },
+  "firestore": {
+    "/leaderboard/{scoreId}": {
+      "schema": "Score",
+      "description": "Collection of worldwide high scores."
+    }
+  }
+}

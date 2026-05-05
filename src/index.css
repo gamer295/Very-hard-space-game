@@ -1,0 +1,32 @@
+@import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-mono: "Courier Prime", ui-monospace, SFMono-Regular, monospace;
+}
+
+@layer components {
+  .pixel-border {
+    border: 4px solid #333;
+    box-shadow: 4px 4px 0px #111;
+  }
+
+  .crt-glow {
+    text-shadow: 0 0 8px rgba(0, 255, 65, 0.6);
+  }
+
+  .scanline {
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+    background-size: 100% 4px, 3px 100%;
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    z-index: 50;
+  }
+
+  .game-screen {
+    background: radial-gradient(circle at center, #0a0a15 0%, #050508 100%);
+    position: relative;
+  }
+}

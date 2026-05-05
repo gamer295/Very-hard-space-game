@@ -1,0 +1,16 @@
+{
+  "short_name": "GalaxiaX8",
+  "name": "GALAXIA-X8: Sector Defense",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3052/3052213.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#000000"
+}

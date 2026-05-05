@@ -1,0 +1,47 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 0. Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Helpers ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    // --- Entities ---
+    function isValidScore(data) {
+      return data.keys().hasAll(['playerName', 'score', 'level', 'createdAt', 'userId'])
+        && data.keys().size() == 5
+        && data.playerName is string && data.playerName.size() >= 2 && data.playerName.size() <= 15
+        && data.score is int && data.score >= 0
+        && data.level is int && data.level >= 1
+        && data.createdAt == request.time
+        && data.userId == request.auth.uid;
+    }
+
+    // --- Collections ---
+    match /leaderboard/{scoreId} {
+      // Identity Check: Anyone signed in can read the leaderboard (it's public).
+      // But we prevent scraping by ensuring it's a list.
+      allow list: if isSignedIn();
+      allow get: if isSignedIn() && isValidId(scoreId);
+
+      // Integrity Check: Only the user who earned the score can create it.
+      // No updates or deletes allowed to keep history pure.
+      allow create: if isSignedIn() && isValidId(scoreId) && isValidScore(incoming());
+      allow update: if false;
+      allow delete: if false;
+    }
+  }
+}

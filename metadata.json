@@ -1,0 +1,6 @@
+{
+  "name": "Retro Void",
+  "description": "An 8-bit style Space Invaders game with power-ups, levels, and a global leaderboard.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
