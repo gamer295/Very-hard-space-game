@@ -32,7 +32,7 @@ export class GameEngine {
   }
 
   getInitialState(): GameState {
-    return {
+    const state: GameState = {
       player: {
         pos: { x: CANVAS_WIDTH / 2 - PLAYER_WIDTH / 2, y: CANVAS_HEIGHT - PLAYER_HEIGHT - 20 },
         width: PLAYER_WIDTH,
@@ -53,9 +53,66 @@ export class GameEngine {
       powerUps: [],
       boss: null,
       vines: { top: 0, bottom: CANVAS_HEIGHT, left: 0, right: CANVAS_WIDTH },
-      status: 'START',
+      status: 'PLAYING',
       level: 1,
     };
+    
+    // Spawn initial enemies for first level
+    const level = 1;
+    const rows = Math.min(ENEMY_ROWS + Math.floor(level / 2), 7);
+    const cols = ENEMY_COLS;
+    const startX = (CANVAS_WIDTH - (cols * (ENEMY_WIDTH + ENEMY_PADDING))) / 2;
+    const startY = 80;
+
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        let type: Enemy['type'] = 'SCOUT';
+        let hp = 1;
+        let color = '#00ff41';
+        let score = 10;
+
+        if (r === 0) {
+          type = 'TANK';
+          hp = 3;
+          color = '#ff0000';
+          score = 50;
+        } else if (r === 1) {
+          type = 'DIVER';
+          hp = 1;
+          color = '#ff00ff';
+          score = 40;
+        } else if (r === 2) {
+          type = 'SHIFTER';
+          hp = 1;
+          color = '#00ffff';
+          score = 30;
+        } else if (r === 3) {
+          type = 'WAVE';
+          hp = 1;
+          color = '#ffff00';
+          score = 25;
+        }
+
+        state.enemies.push({
+          id: `enemy-${r}-${c}-${Date.now()}`,
+          pos: {
+            x: startX + c * (ENEMY_WIDTH + ENEMY_PADDING),
+            y: startY + r * (ENEMY_HEIGHT + ENEMY_PADDING),
+          },
+          originalX: startX + c * (ENEMY_WIDTH + ENEMY_PADDING),
+          width: ENEMY_WIDTH,
+          height: ENEMY_HEIGHT,
+          type,
+          hp,
+          maxHp: hp,
+          score,
+          color,
+          phase: Math.random() * Math.PI * 2
+        });
+      }
+    }
+
+    return state;
   }
 
   triggerBoss() {

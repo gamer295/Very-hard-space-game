@@ -4,7 +4,10 @@ class SoundManager {
   bossInterval: any = null;
 
   init() {
-    if (this.ctx) return;
+    if (this.ctx) {
+      if (this.ctx.state === 'suspended') this.ctx.resume();
+      return;
+    }
     this.ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
   }
 

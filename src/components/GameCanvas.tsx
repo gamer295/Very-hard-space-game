@@ -66,27 +66,31 @@ export const GameCanvas: React.FC = () => {
     let lastLives = engineRef.current.state.player.lives;
 
     const render = () => {
-      const ctx = canvasRef.current?.getContext('2d');
-      if (ctx) {
-        engineRef.current.update(keys, 16, sequenceRef.current);
+      try {
+        const ctx = canvasRef.current?.getContext('2d');
+        if (ctx) {
+          engineRef.current.update(keys, 16, sequenceRef.current);
 
-        // Sound bridges
-        const currentState = engineRef.current.state;
-        const volMult = currentState.boss ? 0.5 : 1.0; // Duck sounds during boss
+          // Sound bridges
+          const currentState = engineRef.current.state;
+          const volMult = currentState.boss ? 0.5 : 1.0; // Duck sounds during boss
 
-        if (currentState.enemies.length < lastEnemyCount || (currentState.boss && currentState.boss.hp < lastBossHp)) {
-            sounds.playTone(100, 'sawtooth', 0.2, 0.05 * volMult);
+          if (currentState.enemies.length < lastEnemyCount || (currentState.boss && currentState.boss.hp < lastBossHp)) {
+              sounds.playTone(100, 'sawtooth', 0.2, 0.05 * volMult);
+          }
+          if (currentState.player.lives < lastLives) {
+              sounds.hit();
+          }
+          
+          lastEnemyCount = currentState.enemies.length;
+          lastLives = currentState.player.lives;
+          lastBossHp = currentState.boss?.hp || 0;
+
+          draw(ctx, engineRef.current.state);
+          setGameState({ ...engineRef.current.state });
         }
-        if (currentState.player.lives < lastLives) {
-            sounds.hit();
-        }
-        
-        lastEnemyCount = currentState.enemies.length;
-        lastLives = currentState.player.lives;
-        lastBossHp = currentState.boss?.hp || 0;
-
-        draw(ctx, engineRef.current.state);
-        setGameState({ ...engineRef.current.state });
+      } catch (err) {
+        console.error("Render loop error:", err);
       }
       animationFrameId = requestAnimationFrame(render);
     };
@@ -391,18 +395,6 @@ export const GameCanvas: React.FC = () => {
       ctx.fillText(symbols[pw.type], pw.pos.x + pw.width / 2, pw.pos.y + pw.height);
     });
 
-    // UI Overlays
-    if (state.status === 'START') {
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
-      ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-      ctx.fillStyle = COLORS.PLAYER;
-      ctx.font = 'bold 48px monospace';
-      ctx.textAlign = 'center';
-      ctx.fillText('RETRO VOID', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 40);
-      ctx.font = '24px monospace';
-      ctx.fillText('PRESS SPACE TO START', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 20);
-    }
-
     if (state.status === 'VICTORY') {
         ctx.fillStyle = 'rgba(0, 0, 0, 0.9)';
         ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
@@ -494,28 +486,14 @@ export const GameCanvas: React.FC = () => {
           height={CANVAS_HEIGHT}
           className="w-full h-full cursor-none touch-none"
           onClick={() => {
-              if (gameState.status === 'START') handleStart();
               if (gameState.status === 'GAMEOVER' || gameState.status === 'VICTORY') handleStart();
-              if (gameState.status === 'PLAYING') {
+              if (gameState.status === 'PLAYING' || gameState.status === 'START') {
+                sounds.init();
                 engineRef.current.shoot();
                 sounds.shoot();
               }
           }}
         />
-
-        {/* Start Overlay */}
-        {gameState.status === 'START' && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 pointer-events-none">
-             <div className="text-green-500 font-mono text-4xl mb-8 tracking-widest crt-glow animate-pulse">GALAXIA-X8</div>
-             <button 
-                className="px-10 py-5 bg-green-600 hover:bg-green-500 text-white font-bold rounded-lg border-b-4 border-green-800 pointer-events-auto transition-transform active:translate-y-1 shadow-[0_0_30px_rgba(22,163,74,0.4)]"
-                onClick={handleStart}
-             >
-                INITIATE PROTOCOL
-             </button>
-             <div className="mt-8 text-green-500/40 text-xs font-mono lowercase tracking-widest">[SPACE] FIRE / [SHIFT/X] PARRY / [WASD] MOVE</div>
-          </div>
-        )}
 
         {cheatMessage && (
           <div className="absolute top-20 left-1/2 -translate-x-1/2 bg-yellow-500 text-black px-4 py-1 font-mono font-bold text-xs rounded animate-bounce z-50">
