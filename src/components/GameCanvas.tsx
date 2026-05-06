@@ -38,7 +38,7 @@ export const GameCanvas: React.FC = () => {
     keys.add(e.key);
     handleSecretPress(e.key);
     
-    if (e.key === ' ' || e.key === 'f') {
+    if (e.key === ' ' || e.key === 'f' || e.key === 'e' || e.key === 'E') {
       const now = Date.now();
       if (now - lastShootRef.current > 200) {
         engineRef.current.shoot();
@@ -47,7 +47,7 @@ export const GameCanvas: React.FC = () => {
       }
     }
 
-    if (e.key === 'Shift' || e.key === 'x') {
+    if (e.key === 'Shift' || e.key === 'x' || e.key === 'q' || e.key === 'Q') {
       engineRef.current.parry();
       sounds.parry();
     }
